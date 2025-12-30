@@ -1,48 +1,66 @@
 import streamlit as st
+import google.generativeai as genai
 
-# Configuración de la página sanadora
+# 1. Configuración del Motor (Caja Negra)
+if "GOOGLE_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+    model = genai.GenerativeModel('gemini-pro')
+else:
+    st.error("Falta la llave secreta en Secrets.")
+
+# 2. Configuración de la página sanadora
 st.set_page_config(page_title="Vínculo Inteligente - Beta", page_icon="🖤", layout="wide")
 
-# Estilo de la Caja Negra (Nada se filtra)
+# Estilo visual
 st.title("🖤 Vínculo Inteligente - Versión Beta")
-st.info("Estás en la Caja Negra secreta. Todo el chat es libre y privado.")
+st.info("Estás en la Caja Negra secreta. Todo el chat es libre, privado y nada será filtrado.")
 
-# --- PARTE 1: PANEL DE CONTROL (Izquierda) ---
+# 3. PANEL DE CONTROL (Izquierda)
 with st.sidebar:
     st.header("⚙️ Módulos de Guía")
-    st.write("Acceso libre para los primeros 20 usuarios.")
+    st.write("Acceso libre - Beta Test")
     
-    # Botones de los módulos (ahora abiertos para prueba)
-    st.button("💘 Módulo Cupido")
-    st.button("🤝 Terapia de Mediación")
-    st.button("🚫 Ruptura Contacto Cero")
+    # Botones de Módulos (Suscripción mencionada en lógica)
+    if st.button("❤️ Módulo Cupido"):
+        st.warning("Accediendo al Módulo Cupido ($10 USD)...")
+    
+    if st.button("🤝 Terapia de Mediación"):
+        st.warning("Iniciando Terapia de Mediación ($10 USD)...")
+        
+    if st.button("🚫 Ruptura Contacto Cero"):
+        st.warning("Activando Protocolo de Ruptura ($10 USD)...")
     
     st.divider()
-    if st.button("🆘 BOTÓN DE PÁNICO"):
-        st.error("¡PAUSA! Respira profundo, Pablo. No estás solo.")
+    
+    # Botón de Pánico
+    if st.button("🚨 BOTÓN DE PÁNICO"):
+        st.error("¡PAUSA! Respira profundo, Pablo. No estás solo. Todo va a estar bien.")
 
-# --- PARTE 2: EL CHAT (Centro) ---
-if "mensajes" not in st.session_state:
-    st.session_state.mensajes = []
+# 4. LÓGICA DEL CHAT
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+    # Mensaje inicial del personaje
+    st.session_state.messages.append({"role": "assistant", "content": "Hola, soy el Doctor IA. Estoy aquí en esta Caja Negra para escucharte de forma amable y sanadora. ¿Qué tienes en tu corazón hoy?"})
 
-# Mostrar el historial de mensajes
-for m in st.session_state.mensajes:
+# Mostrar historial
+for m in st.session_state.messages:
     with st.chat_message(m["role"]):
         st.write(m["content"])
 
-# --- PARTE 3: EL DOCTOR IA (Interacción) ---
+# 5. INTERACCIÓN (Entrada de usuario)
 pregunta = st.chat_input("Escribe tu mensaje aquí, Pablo...")
 
 if pregunta:
-    # Guardar mensaje del usuario
-    st.session_state.mensajes.append({"role": "user", "content": pregunta})
+    # Mostrar mensaje del usuario
+    st.session_state.messages.append({"role": "user", "content": pregunta})
     with st.chat_message("user"):
         st.write(pregunta)
     
-    # Respuesta del Doctor IA (Simulada para la Beta)
-    respuesta_doctor = f"🎙️ **Doctor IA:** Te escucho con atención, Pablo. Como estamos en la Beta, estoy analizando tu mensaje de forma sanadora para darte la mejor guía. ¿Quieres profundizar en este sentimiento?"
-    
-    st.session_state.mensajes.append({"role": "assistant", "content": respuesta_doctor})
+    # Respuesta del Doctor IA
     with st.chat_message("assistant"):
-        st.write(respuesta_doctor)
-        st.write("✨") # Emojis de aprobación
+        try:
+            # Instrucción de personalidad (System Prompt)
+            prompt_sistema = f"Eres el Doctor IA de Vínculo Inteligente. Tu tono es sanador, amable, empático y experto en relaciones. Usa emojis de apoyo. Responde a: {pregunta}"
+            
+            response = model.generate_content(prompt_sistema
+
