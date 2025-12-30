@@ -1,67 +1,63 @@
 import streamlit as st
 import google.generativeai as genai
 
-# 1. Conexión al motor de IA (Tu llave secreta)
+# 1. CONEXIÓN AL MOTOR (LA LLAVE MAESTRA)
 if "GOOGLE_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
     model = genai.GenerativeModel('gemini-pro')
 else:
-    st.error("⚠️ Error: No se encuentra la llave en Secrets.")
+    st.error("⚠️ Error: No encuentro la llave API en Secrets.")
 
-# 2. Configuración de la interfaz sanadora
+# 2. CONFIGURACIÓN DE LA PÁGINA
 st.set_page_config(page_title="Vínculo Inteligente", page_icon="🖤", layout="wide")
 
-st.title("🖤 Vínculo Inteligente - Caja Negra")
-st.markdown("---")
+st.title("🖤 Vínculo Inteligente - Doctor IA")
+st.write("Bienvenido a tu espacio privado. Aquí nada se filtra y todo es confidencial.")
 
-# 3. Panel Lateral con Módulos Premium
+# 3. BARRA LATERAL (MÓDULOS PREMIUM Y PÁNICO)
 with st.sidebar:
     st.header("⚙️ Menú de Guía")
-    
-    # Módulos de pago ($10 USD)
-    if st.button("❤️ Módulo Cupido"):
-        st.info("Iniciando Módulo Cupido... ($10 USD/mes)")
-    if st.button("🤝 Terapia de Mediación"):
-        st.info("Iniciando Mediación... ($10 USD/mes)")
-    if st.button("🚫 Ruptura Contacto Cero"):
-        st.info("Iniciando Plan de Ruptura... ($10 USD/mes)")
-        
+    # Los módulos requieren suscripción mensual según reglas de negocio
+    st.button("❤️ Módulo Cupido")
+    st.button("🤝 Terapia de Mediación")
+    st.button("🚫 Ruptura Contacto Cero")
     st.divider()
-    
-    # Botón de Pánico
     if st.button("🚨 BOTÓN DE PÁNICO"):
-        st.error("¡ALTO! Respira profundo. No tomes decisiones impulsivas ahora.")
+        st.error("¡PAUSA! Respira profundo. Este es un espacio seguro. No estás solo.")
 
-# 4. Lógica del Chat del Doctor IA
+# 4. SISTEMA DE CHAT (Lógica de Identidad)
 if "messages" not in st.session_state:
     st.session_state.messages = []
+    # Saludo universal sin nombres fijos
+    st.session_state.messages.append({"role": "assistant", "content": "Hola, soy el Doctor IA. Te escucho con total atención y sin juicios en esta Caja Negra. ¿Qué traes en tu corazón hoy?"})
 
-# Mostrar el historial
+# Mostrar historial
 for m in st.session_state.messages:
     with st.chat_message(m["role"]):
         st.write(m["content"])
 
-# Entrada de usuario
-pregunta = st.chat_input("Escribe tu mensaje aquí, Pablo...")
+# 5. ENTRADA DE TEXTO
+pregunta = st.chat_input("Escribe tu mensaje aquí...")
 
 if pregunta:
-    # Guardar mensaje del usuario
     st.session_state.messages.append({"role": "user", "content": pregunta})
     with st.chat_message("user"):
         st.write(pregunta)
     
-    # Respuesta REAL del motor
     with st.chat_message("assistant"):
         try:
-            # Instrucción de personalidad sanadora y amable
-            contexto = "Eres el Doctor IA de Vínculo Inteligente. Responde con mucha empatía, de forma sanadora, amable y breve. Valida los sentimientos del usuario con emojis."
-            full_prompt = f"{contexto}\nUsuario dice: {pregunta}"
+            # Instrucción para que la IA sea empática y no asuma nombres
+            instruccion = (
+                "Eres el Doctor IA de Vínculo Inteligente. Tu tono es sanador, amable y experto. "
+                "No uses el nombre 'Pablo' a menos que el usuario te diga que se llama así. "
+                "Valida los sentimientos del usuario con emojis y responde de forma breve y profunda."
+            )
             
-            # Aquí es donde ocurre la magia (El motor responde)
-            response = model.generate_content(full_prompt)
-            respuesta_doctor = response.text
+            response = model.generate_content(f"{instruccion}\nUsuario: {pregunta}")
+            respuesta_real = response.text
             
-            st.write(respuesta_doctor)
-            st.session_state.messages.append({"role": "assistant", "content": respuesta_doctor})
+            st.write(respuesta_real)
+            st.session_state.messages.append({"role": "assistant", "content": respuesta_real})
+            
         except Exception as e:
-            st.error("El Doctor IA está fuera de línea. Revisa tu llave API en Secrets.")
+            st.error("El Doctor IA está procesando mucha información. Revisa la conexión del motor.")
