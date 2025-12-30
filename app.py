@@ -1,66 +1,67 @@
 import streamlit as st
 import google.generativeai as genai
 
-# 1. Configuración del Motor (Caja Negra)
+# 1. Conexión al motor de IA (Tu llave secreta)
 if "GOOGLE_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
     model = genai.GenerativeModel('gemini-pro')
 else:
-    st.error("Falta la llave secreta en Secrets.")
+    st.error("⚠️ Error: No se encuentra la llave en Secrets.")
 
-# 2. Configuración de la página sanadora
-st.set_page_config(page_title="Vínculo Inteligente - Beta", page_icon="🖤", layout="wide")
+# 2. Configuración de la interfaz sanadora
+st.set_page_config(page_title="Vínculo Inteligente", page_icon="🖤", layout="wide")
 
-# Estilo visual
-st.title("🖤 Vínculo Inteligente - Versión Beta")
-st.info("Estás en la Caja Negra secreta. Todo el chat es libre, privado y nada será filtrado.")
+st.title("🖤 Vínculo Inteligente - Caja Negra")
+st.markdown("---")
 
-# 3. PANEL DE CONTROL (Izquierda)
+# 3. Panel Lateral con Módulos Premium
 with st.sidebar:
-    st.header("⚙️ Módulos de Guía")
-    st.write("Acceso libre - Beta Test")
+    st.header("⚙️ Menú de Guía")
     
-    # Botones de Módulos (Suscripción mencionada en lógica)
+    # Módulos de pago ($10 USD)
     if st.button("❤️ Módulo Cupido"):
-        st.warning("Accediendo al Módulo Cupido ($10 USD)...")
-    
+        st.info("Iniciando Módulo Cupido... ($10 USD/mes)")
     if st.button("🤝 Terapia de Mediación"):
-        st.warning("Iniciando Terapia de Mediación ($10 USD)...")
-        
+        st.info("Iniciando Mediación... ($10 USD/mes)")
     if st.button("🚫 Ruptura Contacto Cero"):
-        st.warning("Activando Protocolo de Ruptura ($10 USD)...")
-    
+        st.info("Iniciando Plan de Ruptura... ($10 USD/mes)")
+        
     st.divider()
     
     # Botón de Pánico
     if st.button("🚨 BOTÓN DE PÁNICO"):
-        st.error("¡PAUSA! Respira profundo, Pablo. No estás solo. Todo va a estar bien.")
+        st.error("¡ALTO! Respira profundo. No tomes decisiones impulsivas ahora.")
 
-# 4. LÓGICA DEL CHAT
+# 4. Lógica del Chat del Doctor IA
 if "messages" not in st.session_state:
     st.session_state.messages = []
-    # Mensaje inicial del personaje
-    st.session_state.messages.append({"role": "assistant", "content": "Hola, soy el Doctor IA. Estoy aquí en esta Caja Negra para escucharte de forma amable y sanadora. ¿Qué tienes en tu corazón hoy?"})
 
-# Mostrar historial
+# Mostrar el historial
 for m in st.session_state.messages:
     with st.chat_message(m["role"]):
         st.write(m["content"])
 
-# 5. INTERACCIÓN (Entrada de usuario)
+# Entrada de usuario
 pregunta = st.chat_input("Escribe tu mensaje aquí, Pablo...")
 
 if pregunta:
-    # Mostrar mensaje del usuario
+    # Guardar mensaje del usuario
     st.session_state.messages.append({"role": "user", "content": pregunta})
     with st.chat_message("user"):
         st.write(pregunta)
     
-    # Respuesta del Doctor IA
+    # Respuesta REAL del motor
     with st.chat_message("assistant"):
         try:
-            # Instrucción de personalidad (System Prompt)
-            prompt_sistema = f"Eres el Doctor IA de Vínculo Inteligente. Tu tono es sanador, amable, empático y experto en relaciones. Usa emojis de apoyo. Responde a: {pregunta}"
+            # Instrucción de personalidad sanadora y amable
+            contexto = "Eres el Doctor IA de Vínculo Inteligente. Responde con mucha empatía, de forma sanadora, amable y breve. Valida los sentimientos del usuario con emojis."
+            full_prompt = f"{contexto}\nUsuario dice: {pregunta}"
             
-            response = model.generate_content(prompt_sistema
-
+            # Aquí es donde ocurre la magia (El motor responde)
+            response = model.generate_content(full_prompt)
+            respuesta_doctor = response.text
+            
+            st.write(respuesta_doctor)
+            st.session_state.messages.append({"role": "assistant", "content": respuesta_doctor})
+        except Exception as e:
+            st.error("El Doctor IA está fuera de línea. Revisa tu llave API en Secrets.")
